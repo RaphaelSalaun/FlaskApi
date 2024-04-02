@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:16.2-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./sql_init_scripts:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_PASSWORD=StrongPassword
+
+  flask-app:
+    build: ./
+    command: gunicorn --bind 0.0.0.0:5000 main:app
+    ports:
+      - 8000:5000
+    environment:
+      - POSTGRES_URI=postgresql://api_user:api_password@postgres:5432/mean_prices
+    depends_on:
+      - postgres
+    
+volumes:
+  postgres-data:
